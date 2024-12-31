@@ -1,8 +1,14 @@
 from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
+import os
+
+username = os.getenv('AZURE_MYSQL_USER')
+password = os.getenv('AZURE_MYSQL_PASSWORD')
+hostname = os.getenv('AZURE_MYSQL_HOST')
+database = os.getenv('AZURE_MYSQL_NAME')
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///inventory.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{username}:{password}@{hostname}/{database}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
