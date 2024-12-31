@@ -1,0 +1,117 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Item</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+</head>
+<body>
+    <h1>Add New Item</h1>
+    
+    <!-- Camera Preview -->
+    <div>
+        <video id="cameraPreview" autoplay style="width: 300px; height: 200px; background: #ccc;"></video>
+    </div>
+    <div>
+        <p>Scanned Barcode: <span id="scannedBarcode">None</span></p>
+    </div>
+    
+    <!-- Form to Add New Item -->
+    <form id="addItemForm">
+        <label for="productName">Product Name:</label>
+        <input type="text" id="productName" name="productName" required><br><br>
+
+        <label for="quantity">Quantity:</label>
+        <input type="number" id="quantity" name="quantity" required><br><br>
+
+        <button type="button" onclick="addNewItem()">Add Item</button>
+    </form>
+
+    <script>
+      // Start the camera preview with the back camera
+      navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "environment" } // Use the rear camera
+        })
+        .then(stream => {
+            document.getElementById('cameraPreview').srcObject = stream;
+        })
+        .catch(err => console.error("Camera access failed:", err));
+
+        function startScanner() {
+            Quagga.init({
+                inputStream: {
+                    name: "Live",
+                    type: "LiveStream",
+                    target: document.querySelector('#cameraPreview'), // Video element for scanner
+                    constraints: {
+                        facingMode: "environment" // Use the rear camera
+                    }
+                },
+                decoder: {
+                    readers: ["code_128_reader", "ean_reader", "ean_8_reader"] // Supported barcode formats
+                },
+                locate: true // Enable barcode location detection
+            }, function(err) {
+                if (err) {
+                    console.error("QuaggaJS initialization failed:", err);
+                    alert("Failed to initialize the scanner.");
+                    return;
+                }
+                Quagga.start();
+                console.log("QuaggaJS started successfully");
+            });
+
+            // Listen for detected barcodes
+            Quagga.onDetected(function(data) {
+                const barcode = data.codeResult.code;
+                document.getElementById('scannedBarcode').textContent = barcode;
+                console.log("Detected Barcode:", barcode);
+                // Optionally stop the scanner after detecting a barcode
+                // Quagga.stop();
+            });
+        }
+
+
+        async function addNewItem() {
+            const barcode = document.getElementById('scannedBarcode').textContent;
+            const productName = document.getElementById('productName').value;
+            const quantity = parseInt(document.getElementById('quantity').value);
+
+            if (barcode === 'None') {
+                alert('Please scan a barcode first.');
+                return;
+            }
+
+            if (!productName || quantity <= 0) {
+                alert('Please fill in all fields correctly.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/add_item', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ barcode, product_name: productName, quantity })
+                });
+
+                const result = await response.json();
+                alert(result.message);
+
+                if (result.success) {
+                    document.getElementById('addItemForm').reset(); // Clear the form
+                    document.getElementById('scannedBarcode').textContent = 'None'; // Reset the scanned barcode
+                }
+            } catch (error) {
+                console.error('Error adding item:', error);
+                alert('Failed to add the item. Please try again.');
+            }
+        }
+
+        window.addEventListener('load', startScanner);
+    </script>
+</body>
+</html>
