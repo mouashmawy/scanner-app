@@ -2,10 +2,10 @@ from flask import Flask, request, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
 import os
 
-username = os.getenv('AZURE_MYSQL_USER')
-password = os.getenv('AZURE_MYSQL_PASSWORD')
-hostname = os.getenv('AZURE_MYSQL_HOST')
-database = os.getenv('AZURE_MYSQL_NAME')
+username = os.getenv('MYSQL_USERNAME')
+password = os.getenv('MYSQL_PASSWORD')
+hostname = os.getenv('MYSQL_HOST')
+database = os.getenv('MYSQL_DATABASE')
 
 # Print for debugging
 print(f"MYSQL_USERNAME: {username}")
