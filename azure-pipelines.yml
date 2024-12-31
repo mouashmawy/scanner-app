@@ -21,15 +21,24 @@ steps:
     pip install -r requirements.txt
   displayName: 'Install Python Dependencies'
 
-# Step 3: Deploy Flask app to Azure App Service
+# Step 3: Initialize Database
+- script: python init_db.py
+  displayName: 'Initialize Database'
+  env:
+    AZURE_MYSQL_USER: $(AZURE_MYSQL_USER)
+    AZURE_MYSQL_PASSWORD: $(AZURE_MYSQL_PASSWORD)
+    AZURE_MYSQL_HOST: $(AZURE_MYSQL_HOST)
+    AZURE_MYSQL_NAME: $(AZURE_MYSQL_NAME)
+
+# Step 4: Deploy Flask app to Azure App Service
 - task: AzureWebApp@1
   inputs:
     azureSubscription: 'ScannerAppConnection'
     appType: 'webApp'  
     appName: 'ScannerApp'
     package: $(System.DefaultWorkingDirectory)
+    
   displayName: 'Deploy Flask App to Azure'
 
-# Step 4: Initialize Database
-- script: python init_db.py
-  displayName: 'Initialize Database'
+
+  
