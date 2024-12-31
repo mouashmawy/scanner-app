@@ -7,6 +7,12 @@ password = os.getenv('AZURE_MYSQL_PASSWORD')
 hostname = os.getenv('AZURE_MYSQL_HOST')
 database = os.getenv('AZURE_MYSQL_NAME')
 
+# Print for debugging
+print(f"MYSQL_USERNAME: {username}")
+print(f"MYSQL_PASSWORD: {'******' if password else 'Not Set'}")
+print(f"MYSQL_HOST: {hostname}")
+print(f"MYSQL_DATABASE: {database}")
+
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = f'mysql+pymysql://{username}:{password}@{hostname}/{database}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
