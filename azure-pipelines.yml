@@ -1,0 +1,43 @@
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  name: 'Default'
+
+steps:
+
+# Step 1: Set execution policy to bypass
+- task: PowerShell@2
+  inputs:
+    targetType: 'inline'
+    script: 'Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process'
+  displayName: 'Set Execution Policy to Bypass'
+
+# Step 2: Install dependencies
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+  displayName: 'Install Python Dependencies'
+
+# Step 3: Initialize Database
+- script: python init_db.py
+  displayName: 'Initialize Database'
+  env:
+    AZURE_MYSQL_USER: $(AZURE_MYSQL_USER)
+    AZURE_MYSQL_PASSWORD: $(AZURE_MYSQL_PASSWORD)
+    AZURE_MYSQL_HOST: $(AZURE_MYSQL_HOST)
+    AZURE_MYSQL_NAME: $(AZURE_MYSQL_NAME)
+
+# Step 4: Deploy Flask app to Azure App Service
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: 'ScannerAppConnection'
+    appType: 'webApp'  
+    appName: 'ScannerApp'
+    package: $(System.DefaultWorkingDirectory)
+  displayName: 'Deploy Flask App to Azure'
+
+
+  
