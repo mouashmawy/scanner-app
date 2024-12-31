@@ -8,20 +8,25 @@ pool:
 
 steps:
 
-# Step 1: Set up Python 3.9
+# Step 1: Set execution policy to bypass
+- script: |
+    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
+  displayName: 'Set Execution Policy to Bypass'
+
+# Step 2: Set up Python 3.9
 - task: UsePythonVersion@0
   inputs:
     versionSpec: '3.9'
     addToPath: true
   displayName: 'Set up Python 3.9'
 
-# Step 2: Install dependencies
+# Step 3: Install dependencies
 - script: |
     python -m pip install --upgrade pip
     pip install -r requirements.txt
   displayName: 'Install Python Dependencies'
 
-# Step 3: Deploy Flask app to Azure App Service
+# Step 4: Deploy Flask app to Azure App Service
 - task: AzureWebApp@1
   inputs:
     azureSubscription: 'ScannerAppConnection'
@@ -30,6 +35,6 @@ steps:
     package: $(System.DefaultWorkingDirectory)
   displayName: 'Deploy Flask App to Azure'
 
-# Step 4: Initialize Database
+# Step 5: Initialize Database
 - script: python init_db.py
   displayName: 'Initialize Database'
