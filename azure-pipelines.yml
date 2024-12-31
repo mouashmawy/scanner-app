@@ -37,7 +37,6 @@ steps:
     appType: 'webApp'  
     appName: 'ScannerApp'
     package: $(System.DefaultWorkingDirectory)
-    
   displayName: 'Deploy Flask App to Azure'
 
 
